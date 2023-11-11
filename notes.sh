@@ -1,8 +1,6 @@
 #!/bin/bash
-
-#needed commands: sqlite3 notify-send xclip espeak
-
-#Add source notes.sh in the ~/.bashrc file
+#Read the readme file!
+#run notes --help to see usage
 
 function notes() #main function
 {
