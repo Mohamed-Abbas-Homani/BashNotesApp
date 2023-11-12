@@ -10,7 +10,7 @@ elif [ $1 = "unistall" ]
 then
 	sudo rm /usr/bin/notes
 	rm ~/notes.db
-	rm ~/.config/note.config
+	rm ~/.config/notes.config
 	echo "Done."
 fi
 
