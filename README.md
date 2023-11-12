@@ -31,7 +31,7 @@ Ensure the following commands are available on your system:
 1. Run the make file after cloning:
 
     ```bash
-    ./make
+    bash make
     ```
 
 2. Save and restart your terminal or run `source ~/.bashrc`.
