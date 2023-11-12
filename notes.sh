@@ -279,7 +279,7 @@ function routine()
 	fi
 	
 	latestVersion=$(curl -s https://api.github.com/repos/Mohamed-Abbas-Homani/BashNotesApp/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")')
-		if [[ "$latestVersion" == "$version" ]]
+		if [[ ! "$latestVersion" == "$version" ]]
 		then
 			recho "There is new Update! Run notes update path-to-current-version to update ^^"
 		fi
