@@ -14,7 +14,7 @@ then
 	fi
 	if [ -f "~/notes.db" ]
 	then
-		rm ~/.notes.db
+		rm ~/notes.db
 	fi
 	if [ -f "~/.config/notes.config" ]
 	then
