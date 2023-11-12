@@ -216,7 +216,7 @@ function notes() #main function
     		recho "Copied to clipboard ^^"
 		
 	#-------------------------------------------------------------------------------------------------------- 
-	elif [ "$1" = "update" ] #Update the current version
+	elif [ "$1" = "update" ] #help
 	then
 		if [ -z "$2" ]
 		then
@@ -229,7 +229,7 @@ function notes() #main function
 			recho "BashNotesApp is up to date ^^"
         		return
 		fi
-		git clone --depth 1 "https://github.com/Mohamed-Abbas-Homani/BashNotesApp.git" bna_update
+		git clone --depth 1 "https://github.com/Mohamed-Abbas-Homani/BashNotesApp.git" bna_update &> /dev/null
 		cp -f bna_update/notes.sh $2
 		rm -rf bna_update
 		recho "Update Done ^^"
