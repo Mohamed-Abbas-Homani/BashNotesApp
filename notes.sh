@@ -2,7 +2,7 @@
 #Read the readme file!
 #run notes --help to see usage
 
-version="1.0"
+version="1.0.0.0"
 
 function notes() #main function
 {
