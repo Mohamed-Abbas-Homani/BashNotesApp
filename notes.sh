@@ -168,7 +168,7 @@ function notes() #main function
 		recho "Done ^^"
 
 	#-------------------------------------------------------------------------------------------------------- 
-	elif [ "$1" = "speak" ] #Reading alout the notes
+	elif [ "$1" = "speak" ] #Reading aloud the notes
 	then
 		if command -v espeak &> /dev/null
 		then
