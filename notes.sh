@@ -2,10 +2,12 @@
 #Read the readme file!
 #run notes --help to see usage
 
+version="1.0"
+
 function notes() #main function
 {
-	createNotesTable
-	
+	loadConfig
+	routine
 	if [ -z $1 ] #listing notes
 	then
 		if [ "`count`" = "0" ]
@@ -16,7 +18,7 @@ function notes() #main function
 		getNotes | while IFS= read -r line;
 		do
 			bluto "$i- $line"
-			bluto "-------------------------------"
+			bline
 			i=$((i+1))
 		done
 		
@@ -86,7 +88,7 @@ function notes() #main function
     		sqlite3 notes.db "SELECT content FROM notes WHERE content LIKE '%$2%';" | while IFS= read -r line
     		do
     			bluto "$i- $line"
-			bluto "-------------------------------"
+			bline
 			i=$((i+1))
     		done
 			
@@ -116,7 +118,7 @@ function notes() #main function
 	then
 		if [ "$2" = "before" ] #keeping today's notes
 		then
-			sqlite3 notes.db "DELETE FROM notes WHERE date(timestamp) != date('now', 'localtime');"
+			clearBefore
 		else			#clear all
 			sqlite3 notes.db "DELETE FROM notes;"
 		fi
@@ -235,6 +237,35 @@ function notes() #main function
 	fi
 }
 
+
+function loadConfig()
+{
+	if [ -f notes.config ]
+	then
+		source notes.config
+	else
+		echo "Missing notes.config file :("
+	fi
+	
+}
+
+function routine()
+{
+	createNotesTable
+	
+	if [ "$DELETE_ALL_DAILY" = "true" ]
+	then
+		clearBefore
+	fi
+	
+	
+}
+
+function clearBefore()
+{
+	sqlite3 notes.db "DELETE FROM notes WHERE date(timestamp) != date('now', 'localtime');"
+}
+
 function bluto() #echo with blue color
 {
 	echo -e "\e[34m$@\e[0m"
@@ -243,6 +274,11 @@ function bluto() #echo with blue color
 function recho() #echo with red color
 {
 	echo -e "\e[31m$@\e[0m"
+}
+
+function bline()
+{
+	bluto `printf '%.0s-' {1..50}`
 }
 
 function createNotesTable() #Create the notes table if not exist
