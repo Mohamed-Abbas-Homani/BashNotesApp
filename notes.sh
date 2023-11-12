@@ -2,12 +2,13 @@
 #Read the readme file!
 #run notes --help to see usage
 
-version="1.0.0.0"
+version="1.0.1.1"
 
 function notes() #main function
 {
 	loadConfig
-	routine
+	routine $@
+	
 	if [ -z $1 ] #listing notes
 	then
 		if [ "`count`" = "0" ]
@@ -278,11 +279,14 @@ function routine()
 		clearBefore
 	fi
 	
-	latestVersion=$(curl -s https://api.github.com/repos/Mohamed-Abbas-Homani/BashNotesApp/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")')
+	if [ ! "$1" = "update" ]
+	then
+		latestVersion=$(curl -s https://api.github.com/repos/Mohamed-Abbas-Homani/BashNotesApp/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")')
 		if [[ ! "$latestVersion" == "$version" ]]
 		then
 			recho "There is new Update! Run notes update path-to-current-version to update ^^"
 		fi
+	fi
 }
 
 function clearBefore()
