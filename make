@@ -8,19 +8,9 @@ then
 	echo "Happy Hacking!"
 elif [ $1 = "unistall" ]
 then
-	if [ -f "/usr/bin/notes" ]
-	then
-		sudo rm /usr/bin/notes
-	fi
-	if [ -f "~/notes.db" ]
-	then
-		rm ~/notes.db
-	fi
-	if [ -f "~/.config/notes.config" ]
-	then
-		rm ~/.config/note.config
-	fi
-	
+	sudo rm /usr/bin/notes
+	rm ~/notes.db
+	rm ~/.config/note.config
 	echo "Done."
 fi
 
