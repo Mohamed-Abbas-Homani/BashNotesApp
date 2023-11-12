@@ -216,7 +216,7 @@ function notes() #main function
     		recho "Copied to clipboard ^^"
 		
 	#-------------------------------------------------------------------------------------------------------- 
-	elif [ "$1" = "update" ] #help
+	elif [ "$1" = "update" ] #Update to the new version
 	then
 		if [ -z "$2" ]
 		then
@@ -249,6 +249,7 @@ function notes() #main function
 		recho "use notes search keywords to search for one or more notes"
 		recho "use notes copy nb-note to copy the note to the clipboard"
 		recho "use notes speak to listen to the notes"
+  		recho "use notes update path-to-current-verison to update to the new version"
 		
 	#-------------------------------------------------------------------------------------------------------- 
 	else 			#invalid options
@@ -277,7 +278,11 @@ function routine()
 		clearBefore
 	fi
 	
-	
+	latestVersion=$(curl -s https://api.github.com/repos/Mohamed-Abbas-Homani/BashNotesApp/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")')
+		if [[ "$latestVersion" == "$version" ]]
+		then
+			recho "There is new Update! Run notes update path-to-current-version to update ^^"
+		fi
 }
 
 function clearBefore()
