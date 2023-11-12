@@ -216,6 +216,25 @@ function notes() #main function
     		recho "Copied to clipboard ^^"
 		
 	#-------------------------------------------------------------------------------------------------------- 
+	elif [ "$1" = "update" ] #Update the current version
+	then
+		if [ -z "$2" ]
+		then
+			 echo "Missing arguments (Current version path) :("
+			 return
+		fi
+		latestVersion=$(curl -s https://api.github.com/repos/Mohamed-Abbas-Homani/BashNotesApp/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")')
+		if [[ "$latestVersion" == "$version" ]]
+		then
+			recho "BashNotesApp is up to date ^^"
+        		return
+		fi
+		git clone --depth 1 "https://github.com/Mohamed-Abbas-Homani/BashNotesApp.git" bna_update
+		cp -f bna_update/notes.sh $2
+		rm -rf bna_update
+		recho "Update Done ^^"
+
+	#-------------------------------------------------------------------------------------------------------- 
 	elif [ "$1" = "--help" ] #help
 	then
 		recho "use notes for listing notes"
