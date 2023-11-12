@@ -12,7 +12,7 @@ then
 	then
 		sudo rm /usr/bin/notes
 	fi
-	if [ -f "~/.notes.db" ]
+	if [ -f "~/notes.db" ]
 	then
 		rm ~/.notes.db
 	fi
