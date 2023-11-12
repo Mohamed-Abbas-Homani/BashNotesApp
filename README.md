@@ -17,6 +17,7 @@ Bash Notes App is a simple command-line tool for managing notes in your terminal
 - **Read Aloud:** Listen to your notes using the espeak tool.
 - **Export to File:** Save your notes to a file for backup or sharing.
 - **Copy to Clipboard:** Copy a specific note to the clipboard.
+- **Automatic Updates Check:** Update your current version with auto-update feature.
 
 ## Prerequisites
 
@@ -25,6 +26,7 @@ Ensure the following commands are available on your system:
 - `notify-send`
 - `xclip`
 - `espeak`
+- `git`
 
 ## Installation
 
@@ -44,12 +46,18 @@ notes
 
 # Add a new note
 notes add "Your new note"
+or just
+notes add
 
 # Edit a note
 notes edit 1 "Updated note content"
+or just
+notes edit 1
 
 # Delete a note
 notes delete 2
+and you can
+notes delete 2 4 1
 
 # Search for notes
 notes search "keyword"
@@ -59,6 +67,27 @@ notes import notes.txt
 
 # Clear all notes
 notes clear
+and you can
+notes clear before
 
 # View notes on the browser
 notes web
+and you can
+notes web links
+
+# Set reminder
+notes remind 1 30
+and you can
+notes remind 1 30 run
+
+#Read notes aloud
+notes speak
+
+#Export to file
+notes export notes.txt
+
+#Copy to Clipboard
+notes copy 1
+
+#Update to new version
+notes update ~/Scripts/notes.sh
