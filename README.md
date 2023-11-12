@@ -30,10 +30,10 @@ Ensure the following commands are available on your system:
 
 ## Installation
 
-1. Add the source of `notes.sh` to your `~/.bashrc` file.
+1. Run the make file after cloning:
 
     ```bash
-    source /path/to/notes.sh
+    ./make
     ```
 
 2. Save and restart your terminal or run `source ~/.bashrc`.
