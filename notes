@@ -218,26 +218,6 @@ function notes() #main function
     		noteToCopy="`noteByNum $2`"
     		echo -n "$noteToCopy" | xclip -selection clipboard
     		recho "Copied to clipboard ^^"
-		
-	#-------------------------------------------------------------------------------------------------------- 
-	elif [ "$1" = "update" ] #Update to the new version
-	then
-		if [ -z "$2" ]
-		then
-			 echo "Missing arguments (Current version path) :("
-			 return
-		fi
-		latestVersion=$(curl -s https://api.github.com/repos/Mohamed-Abbas-Homani/BashNotesApp/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")')
-		if [[ "$latestVersion" == "$version" ]]
-		then
-			recho "BashNotesApp is up to date ^^"
-        		return
-		fi
-		git clone --depth 1 "https://github.com/Mohamed-Abbas-Homani/BashNotesApp.git" ~/bna_update &> /dev/null
-		sudo cp -f ~/bna_update/notes /usr/bin/notes
-		sudo chmod +x /usr/bin/notes
-		rm -rf ~/bna_update
-		recho "Update Done ^^"
 
 	#-------------------------------------------------------------------------------------------------------- 
 	elif [ "$1" = "--help" ] #help
@@ -254,7 +234,6 @@ function notes() #main function
 		recho "use notes search keywords to search for one or more notes"
 		recho "use notes copy nb-note to copy the note to the clipboard"
 		recho "use notes speak to listen to the notes"
-  		recho "use notes update path-to-current-verison to update to the new version"
 		
 	#-------------------------------------------------------------------------------------------------------- 
 	else 			#invalid options
@@ -263,7 +242,7 @@ function notes() #main function
 }
 
 
-function loadConfig() #Load the config file
+function loadConfig()
 {
 	if [ -f $configFile ]
 	then
@@ -274,7 +253,7 @@ function loadConfig() #Load the config file
 	
 }
 
-function routine() #Perform routine operation
+function routine()
 {
 	createNotesTable
 	
