@@ -2,12 +2,14 @@
 #Read the readme file!
 #run notes --help to see usage
 
-version="1.0.1.1"
+version="1.3.1.3"
+db="$HOME/.notes.db"
+configFile="$HOME/.config/notes.config"
 
 function notes() #main function
 {
 	loadConfig
-	routine $@
+	routine $@ 
 	
 	if [ -z $1 ] #listing notes
 	then
@@ -18,9 +20,9 @@ function notes() #main function
 		fi
 		getNotes | while IFS= read -r line;
 		do
+			i=$(($i+1))
 			bluto "$i- $line"
 			bline
-			i=$((i+1))
 		done
 		
 	#-------------------------------------------------------------------------------------------------------- 
@@ -55,7 +57,7 @@ function notes() #main function
 			shift;shift;
 			newNote="$@"
 		fi
-		sqlite3 notes.db "UPDATE notes SET content = '$newNote' WHERE content = '$noteToEdit';"
+		sqlite3 $db "UPDATE notes SET content = '$newNote' WHERE content = '$noteToEdit';"
 		recho "Edited ^^"
 		notes
 		
@@ -72,7 +74,7 @@ function notes() #main function
 		for i in $@
 		do
 			noteToDelete=`head -n$i .tmp | tail -n1`
-			sqlite3 notes.db "DELETE FROM notes WHERE content = '$noteToDelete';"
+			sqlite3 $db "DELETE FROM notes WHERE content = '$noteToDelete';"
 		done
 		rm ".tmp"
 		recho  "Delted ^^"
@@ -86,11 +88,12 @@ function notes() #main function
 			echo "Missing arguments (keyword) :("
 			return
 		fi
-    		sqlite3 notes.db "SELECT content FROM notes WHERE content LIKE '%$2%';" | while IFS= read -r line
+    		sqlite3 $db "SELECT content FROM notes WHERE content LIKE '%$2%';" | while IFS= read -r line
     		do
+    			i=$(($i+1))
     			bluto "$i- $line"
 			bline
-			i=$((i+1))
+
     		done
 			
 	#-------------------------------------------------------------------------------------------------------- 
@@ -121,7 +124,7 @@ function notes() #main function
 		then
 			clearBefore
 		else			#clear all
-			sqlite3 notes.db "DELETE FROM notes;"
+			sqlite3 $db "DELETE FROM notes;"
 		fi
 		if [ -f "tmp.html" ]
 		then
@@ -230,9 +233,10 @@ function notes() #main function
 			recho "BashNotesApp is up to date ^^"
         		return
 		fi
-		git clone --depth 1 "https://github.com/Mohamed-Abbas-Homani/BashNotesApp.git" bna_update &> /dev/null
-		cp -f bna_update/notes.sh $2
-		rm -rf bna_update
+		git clone --depth 1 "https://github.com/Mohamed-Abbas-Homani/BashNotesApp.git" ~/bna_update &> /dev/null
+		sudo cp -f ~/bna_update/notes /usr/bin/notes
+		sudo chmod +x /usr/bin/notes
+		rm -rf ~/bna_update
 		recho "Update Done ^^"
 
 	#-------------------------------------------------------------------------------------------------------- 
@@ -259,18 +263,18 @@ function notes() #main function
 }
 
 
-function loadConfig()
+function loadConfig() #Load the config file
 {
-	if [ -f notes.config ]
+	if [ -f $configFile ]
 	then
-		source notes.config
+		source $configFile
 	else
 		echo "Missing notes.config file :("
 	fi
 	
 }
 
-function routine()
+function routine() #Perform routine operation
 {
 	createNotesTable
 	
@@ -279,19 +283,12 @@ function routine()
 		clearBefore
 	fi
 	
-	if [ ! "$1" = "update" ]
-	then
-		latestVersion=$(curl -s https://api.github.com/repos/Mohamed-Abbas-Homani/BashNotesApp/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")')
-		if [[ ! "$latestVersion" == "$version" ]]
-		then
-			recho "There is new Update! Run notes update path-to-current-version to update ^^"
-		fi
-	fi
+	
 }
 
 function clearBefore()
 {
-	sqlite3 notes.db "DELETE FROM notes WHERE date(timestamp) != date('now', 'localtime');"
+	sqlite3 $db "DELETE FROM notes WHERE date(timestamp) != date('now', 'localtime');"
 }
 
 function bluto() #echo with blue color
@@ -311,18 +308,18 @@ function bline()
 
 function createNotesTable() #Create the notes table if not exist
 {
-	sqlite3 notes.db "CREATE TABLE IF NOT EXISTS notes (id INTEGER PRIMARY KEY, content TEXT, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP);"
+	sqlite3 $db "CREATE TABLE IF NOT EXISTS notes (id INTEGER PRIMARY KEY, content TEXT, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP);"
 }
 
 function getNotes() #get all notes
 {
-	sqlite3 notes.db "SELECT content FROM notes;" 
+	sqlite3 $db "SELECT content FROM notes;" 
 }
 
 function insertNote() #insert single note
 {
 	note="$@"
-	sqlite3 notes.db "INSERT INTO notes (content) VALUES ('$note');"
+	sqlite3 $db "INSERT INTO notes (content) VALUES ('$note');"
 }
 
 function noteByNum() #get note content by its number
@@ -332,5 +329,7 @@ function noteByNum() #get note content by its number
 
 function count()
 {
-    sqlite3 notes.db "SELECT COUNT(*) FROM notes;"
+    sqlite3 $db "SELECT COUNT(*) FROM notes;"
 }
+
+notes $@
