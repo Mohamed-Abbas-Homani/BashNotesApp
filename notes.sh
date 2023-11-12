@@ -168,7 +168,7 @@ function notes() #main function
 		recho "Done ^^"
 
 	#-------------------------------------------------------------------------------------------------------- 
-	elif [ "$1" = "speak" ] #creating note reminder
+	elif [ "$1" = "speak" ] #Reading alout the notes
 	then
 		if command -v espeak &> /dev/null
 		then
@@ -198,7 +198,7 @@ function notes() #main function
 		recho "$2 notes copy created ^^"
 		
 	#-------------------------------------------------------------------------------------------------------- 
-	elif [ "$1" = "copy" ] #export the notes to a file
+	elif [ "$1" = "copy" ] #copy a note to the clipboard
 	then
 		if ! command -v xclip &> /dev/null
 		then
