@@ -34,7 +34,7 @@ Ensure the following commands are available on your system:
 
     ```bash
     bash make
-    bash make unistall #to unistall
+    bash make uninstall #to uninstall
     ```
 
 2. Save and restart your terminal or run `source ~/.bashrc`.
