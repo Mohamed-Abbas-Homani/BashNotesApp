@@ -2,7 +2,7 @@
 #Read the readme file!
 #run notes --help to see usage
 
-version="1.3.1.3"
+version="1.3.2.0"
 db="$HOME/notes.db"
 configFile="$HOME/.config/notes.config"
 
@@ -199,9 +199,31 @@ function notes() #main function
 		then
 			echo "Missing arguments (file name) :("
 			return
+		else
+			if [ "$3" = "json" ]
+			then
+				sqlite3 $db "SELECT id, content, timestamp FROM notes;" | \
+				awk -v RS= -v OFS=',' -F'\n' '{
+        			print "[";
+        			for (i = 1; i <= NF; i++) {
+            			split($i, fields, "|");
+           		 	print "  {";
+            			print "    \"id\": " fields[1] ",";
+            			print "    \"content\": \"" fields[2] "\",";
+            			print "    \"timestamp\": \"" fields[3] "\"";
+            			print "  }";
+            			if (i < NF) {
+                		print ",";
+            			}
+        			}
+        			print "]";
+    				}' > "$2.json"
+    				recho "$2.json notes copy created ^^"
+			else
+				getNotes > `"$2"`
+				recho "$2 notes copy created ^^"
+			fi
 		fi
-		getNotes > `"$2"`
-		recho "$2 notes copy created ^^"
 		
 	#-------------------------------------------------------------------------------------------------------- 
 	elif [ "$1" = "copy" ] #copy a note to the clipboard
@@ -229,7 +251,7 @@ function notes() #main function
 		recho "use notes clear to delete all notes, add before to delete all notes without today's notes"
 		recho "use notes web to see the notes on firefox and links to them as links"
 		recho "use notes import fileName to include a notes file each note on a line"
-		recho "use notes export to export the notes to a file"
+		recho "use notes export fileName (json) to export the notes to a JSON or text file"
 		recho "use notes remind nb-note nb-seconds to set reminder of a note, add run to run the note"
 		recho "use notes search keywords to search for one or more notes"
 		recho "use notes copy nb-note to copy the note to the clipboard"
