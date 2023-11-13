@@ -2,7 +2,7 @@
 #Read the readme file!
 #run notes --help to see usage
 
-version="1.3.2.0"
+version="v1.4.1.3"
 db="$HOME/notes.db"
 configFile="$HOME/.config/notes.config"
 
@@ -151,46 +151,61 @@ function notes() #main function
 	#-------------------------------------------------------------------------------------------------------- 
 	elif [ "$1" = "remind" ] #creating note reminder
 	then
-		if ! command -v notify-send &> /dev/null
+    		checkCommand "notify-send" || return
+		checkCommand "at" || return
+		
+		if ! pgrep -x "atd" > /dev/null;
 		then
-			recho "notify-send needed :("
+    			recho "atd need to be running"
+    			sudo systemctl start atd || service atd start
 		fi
-		if [ -z $2 ] || [ -z $3 ]
-		then
-			echo "Missing arguments (note number or seconds number) :("
-			return
-		fi
-		if [ "$3" -lt 3 ]
-		then
-			recho "Time too short :(, try more than 3 seconds :)"
-			return
-		fi
-		if [ "$4" = "run" ]
-		then
-			(sleep $3 && notify-send "note $2 running" && `$(noteByNum $2)` &> /dev/null )&
-		else
-			(sleep $3 && notify-send "`noteByNum $2`" &> /dev/null )&
-		fi
-		recho "Done ^^"
 
+    		if [ -z "$2" ] || [ -z "$3" ]
+    		then
+        		echo "Missing arguments (note number or time) :("
+        		return
+    		fi
+		
+		if [ "$3" = "at" ]
+		then
+			echo "/usr/bin/notify-send '`noteByNum $2`'" | \
+    			at  $4 &> /dev/null
+    			recho "Done ^^"
+			return
+		fi
+		
+    		local noteNumber="$2"
+    		shift 2
+    		local timeInMinutes=$(convertToMinutes "$@")
+
+    		echo "/usr/bin/notify-send '`noteByNum $noteNumber`'" | \
+    		at now + "$timeInMinutes" minutes &> /dev/null
+    		
+    		if [ $? -ne 0 ]
+    		then
+    			recho "Invalid time format :( try like this: 1 hour 3 minutes"
+        		return
+    		fi
+    		recho "Done ^^"
+    		
 	#-------------------------------------------------------------------------------------------------------- 
 	elif [ "$1" = "speak" ] #Reading aloud the notes
 	then
-		if command -v espeak &> /dev/null
+		
+		checkCommand "espeak" || return
+		
+		if [ "`count`" = "0" ]
 		then
-			if [ "`count`" = "0" ]
-			then
-				espeak -s 130 "Empty ! Use note add, or help." &> /dev/null
-				return
-			fi
-			getNotes | while IFS= read -r line;
-			do
-				espeak -s 130 "$i, $line." &> /dev/null 
-				i=$((i+1))
-			done
-		else
-			recho "espeak needed :("
+			espeak -s 130 "Empty ! Use note add, or help." &> /dev/null
+			return
 		fi
+		
+		getNotes | while IFS= read -r line;
+		do
+			i=$((i+1))
+			espeak -s 130 "$i, $line." &> /dev/null 
+				
+		done
 
 	#-------------------------------------------------------------------------------------------------------- 
 	elif [ "$1" = "export" ] #export the notes to a file
@@ -228,10 +243,7 @@ function notes() #main function
 	#-------------------------------------------------------------------------------------------------------- 
 	elif [ "$1" = "copy" ] #copy a note to the clipboard
 	then
-		if ! command -v xclip &> /dev/null
-		then
-			recho "xclip needed :("
-		fi
+		checkCommand "xclip" || return
 		if [ -z $1 ]
     		then
        			 echo "Missing arguments (note number) :("
@@ -242,7 +254,26 @@ function notes() #main function
     		recho "Copied to clipboard ^^"
 
 	#-------------------------------------------------------------------------------------------------------- 
-	elif [ "$1" = "--help" ] #help
+	elif [ "$1" = "update" ] #copy a note to the clipboard
+	then
+		latestVersion=$(curl -s "https://api.github.com/repos/Mohamed-Abbas-Homani/BashNotesApp/releases/latest" | grep -oP '"tag_name": "\K(.*)(?=")') 
+
+    		if [[ "$latestVersion" != "$version" ]]
+    		then
+        		recho "A new version ($latestVersion) is available ^^"
+    		else
+        		recho "BashNotesApp is up to date ^^"
+        		return
+    		fi
+
+    		git clone --depth 1 https://github.com/Mohamed-Abbas-Homani/BashNotesApp.git tmp_BashNotesApp &> /dev/null
+    		sudo cp -f tmp_BashNotesApp/notes /usr/bin/notes
+		rm -rf tmp_BashNotesApp
+    		recho "Update complete ^^"
+    		recho "Use notes --help to see what is new!"
+
+	#-------------------------------------------------------------------------------------------------------- 
+	elif [ "$1" = "--help" ] ||  [ "$1" = "-h" ] #help
 	then
 		recho "use notes for listing notes"
 		recho "use notes add to add new notes"
@@ -251,18 +282,25 @@ function notes() #main function
 		recho "use notes clear to delete all notes, add before to delete all notes without today's notes"
 		recho "use notes web to see the notes on firefox and links to them as links"
 		recho "use notes import fileName to include a notes file each note on a line"
-		recho "use notes export fileName (json) to export the notes to a JSON or text file"
-		recho "use notes remind nb-note nb-seconds to set reminder of a note, add run to run the note"
+		recho "use notes export to export the notes to a file"
 		recho "use notes search keywords to search for one or more notes"
 		recho "use notes copy nb-note to copy the note to the clipboard"
 		recho "use notes speak to listen to the notes"
+		bluto "New ^^"
+		recho "use notes update to auto-check update and update the app!"
+		recho "use notes remind nb-note 2 hours 5 minutes or use notes remind nb-notes at 10:30"
+		recho "use notes --version or notes -v for the current version"
+		
+	#-------------------------------------------------------------------------------------------------------- 
+	elif [ "$1" = "version" ] ||  [ "$1" = "-v" ] #version
+	then
+		echo $version
 		
 	#-------------------------------------------------------------------------------------------------------- 
 	else 			#invalid options
-		recho "Invalid option :(, use notes help"
+		recho "Invalid option :(, use notes --help"
 	fi
 }
-
 
 function loadConfig()
 {
@@ -272,7 +310,6 @@ function loadConfig()
 	else
 		echo "Missing notes.config file :("
 	fi
-	
 }
 
 function routine()
@@ -283,8 +320,6 @@ function routine()
 	then
 		clearBefore
 	fi
-	
-	
 }
 
 function clearBefore()
@@ -331,6 +366,35 @@ function noteByNum() #get note content by its number
 function count()
 {
     sqlite3 $db "SELECT COUNT(*) FROM notes;"
+}
+
+function convertToMinutes() {
+    local totalMinutes=0
+
+    for arg in "$@"; do
+        case $arg in
+            "hour" | "hours")
+                totalMinutes=$((totalMinutes + 60 * ${prevArg:-0}))
+                ;;
+            "minute" | "minutes")
+                totalMinutes=$((totalMinutes + ${prevArg:-0}))
+                ;;
+            *)
+                prevArg=$arg
+                ;;
+        esac
+    done
+
+    echo $totalMinutes
+}
+
+function checkCommand()
+{
+	if ! command -v $1 &> /dev/null
+    	then
+      		recho "$1 needed :("
+        	return 1
+    	fi
 }
 
 notes $@
