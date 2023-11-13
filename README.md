@@ -18,7 +18,7 @@ Bash Notes App is a simple command-line tool for managing notes in your terminal
 - **Export to File:** Save your notes to a JSON or text file for backup or sharing.
 - **Copy to Clipboard:** Copy a specific note to the clipboard.
 - **Auto Check Update:** Check for new update and update within the app!
-- 
+  
 ## Prerequisites
 
 Ensure the following commands are available on your system:
@@ -27,7 +27,7 @@ Ensure the following commands are available on your system:
 - `xclip`
 - `espeak`
 - `at`
-  
+
 ## Installation
 
 1. Run the make file after cloning:
